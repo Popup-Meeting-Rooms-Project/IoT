@@ -17,7 +17,7 @@
 const char* mqttTopicIn = "hh-iot-mqtt/inTopic";
 const char* mqttTopicOut = "hh-iot-mqtt/outTopic";
 
-// Instantiate a WiFiClient and passes it to the MQTT library
+// Instantiate a WiFiClient and pass it to the MQTT library
 WiFiClient espClient;
 PubSubClient client(espClient);
 
