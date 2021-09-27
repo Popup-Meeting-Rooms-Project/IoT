@@ -1,6 +1,8 @@
 /*
  * Multidisciplinary software project
  * Sketch to control an ESP32(-S2)
+ * MQTT sections derived from the PubSubClient example sketch
+ * https://github.com/knolleary/pubsubclient/blob/master/examples/mqtt_esp8266/mqtt_esp8266.ino
  */
 
 #include <WiFi.h>
