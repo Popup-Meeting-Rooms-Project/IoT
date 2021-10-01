@@ -125,6 +125,7 @@ void loop() {
 
   if (stateChanged) {
     publishStatus();
+    stateChanged = false;
   }
 }
 
