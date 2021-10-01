@@ -7,6 +7,7 @@
 
 #include <WiFi.h>
 #include <PubSubClient.h> // MQTT library
+#include <ArduinoJson.h>
 
 /*
  * WiFi credentials and MQTT server address in a separate file
@@ -23,11 +24,34 @@ const char* mqttTopicOut = "hh-iot-mqtt/outTopic";
 WiFiClient espClient;
 PubSubClient client(espClient);
 
-// Set basic variables
-unsigned long lastMsg = 0;
-#define MSG_BUFFER_SIZE (50)
+// Device MAC address (serves as the device ID,
+// which the backend and frontend will map to a physical room)
+String deviceMac = WiFi.macAddress();
+
+// MQTT message
+#define MSG_BUFFER_SIZE (128)
 char msg[MSG_BUFFER_SIZE];
-int value = 0;
+
+// PIR sensor
+const int sensorPin = 15; // GPIO15
+volatile byte sensorState = LOW;
+volatile bool stateChanged = false;
+
+// Handles detected motion
+/*  This function is called as an interrupt so it needs to contain
+ *  the bare minimum of code.
+ *  Interrupts cannot use function calls that also use interrupts.
+ *  These include calls to Serial and the WiFi library.
+ */
+void IRAM_ATTR toggleMotionDetected() {
+  if (sensorState == HIGH) {
+    sensorState = LOW;
+  }
+  else {
+    sensorState = HIGH;
+  }
+  stateChanged = true;
+}
 
 void setup() {
   Serial.begin(115200);
@@ -44,6 +68,10 @@ void setup() {
    * the front-end/back-end to poll IoT devices for their current status
    */
   client.setCallback(messageReceived);
+
+  // Attach the interrupt to handle the PIR sensor
+  pinMode(sensorPin, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(sensorPin), toggleMotionDetected, CHANGE);
 }
 
 // Establishes a WiFi connection
@@ -77,36 +105,58 @@ void start_wifi() {
 // Displays an inbound message
 // This is a callback function bound to the PubSubClient in setup()
 void messageReceived(char* topic, byte* payload, unsigned int length) {
-  Serial.print("Message received: [");
-  Serial.print(topic);
-  Serial.print("] ");
-  for (int i = 0; i < length; i++) {
-    Serial.print((char)payload[i]);
+  Serial.println("Received MQTT message");
+  StaticJsonDocument<256> doc;
+  deserializeJson(doc, payload, length);
+  String command = doc["command"];
+  // If the deserialised JSON contains the key "command" with the value "status",
+  // publish an MQTT message containing the device status
+  if (command == "status") {
+    publishStatus();
   }
-  Serial.println();
 }
 
-// Keeps the connection alive and publishes a regular pulse of messages
+// Keeps the connection alive and checks for state changes
 void loop() {
   if (!client.connected()) {
     reconnect();
   }
   client.loop();
 
-  // Send a pulse of messages, one every two seconds
-  unsigned long now = millis();
-  if (now - lastMsg > 2000) {
-    lastMsg = now;
-    ++value;
-    snprintf(msg, MSG_BUFFER_SIZE, "Hello world #%ld", value);
-
-    // Log the message
-    Serial.print("Publishing message: ");
-    Serial.println(msg);
-
-    // Publish
-    client.publish(mqttTopicOut, msg);
+  if (stateChanged) {
+    publishStatus();
   }
+}
+
+// Publishes an MQTT message with the current status
+void publishStatus() {
+  if (sensorState == HIGH) {
+    Serial.println("Motion detected");
+    buildMessage(true);
+  }
+  else {
+    Serial.println("Motion no longer detected");
+    buildMessage(false);
+  }
+  client.publish(mqttTopicOut, msg);
+}
+
+// Builds the JSON message
+/*
+ * {
+ *  [
+ *    "sensor": the MAC address,
+ *    "detected": true or false
+ *  ]
+ * }
+ */
+void buildMessage(bool motionState) {
+  Serial.println("Building JSON message");
+  DynamicJsonDocument doc(128);
+  doc["sensor"] = deviceMac;
+  doc["detected"] = motionState;
+  serializeJson(doc, msg);
+  Serial.println(msg);
 }
 
 // Reconnects to the MQTT broker
