@@ -174,7 +174,8 @@ void reconnect() {
 
     if (client.connect(clientID.c_str())) {
       // Success
-      Serial.println("Connected");
+      Serial.print("Connected with device ID ");
+      Serial.println(clientID);
 
       // Publish a message to show the device is connected
       String message = "Device connected: ";
