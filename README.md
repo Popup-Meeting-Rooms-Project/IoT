@@ -2,7 +2,14 @@
 
 Contains the files that are compiled to run on a microcontroller.
 
-The microcontroller is an ESP32(-S2), and the PIR motion detector is a [edit this pls].
+The microcontroller is an ESP32(-S2), and the PIR motion detector can be selected  
+from variety of different options depending on availability of detectors.  
+Contraints for selecting PIR are:  
++ around 120 degrees field of view  
++ operating voltage either 3,3V or 5V  
++ output signal voltage 3,3V.  
+  
+Adjustability is ootional.   [edit this pls].
 
 ## constants.h
 
