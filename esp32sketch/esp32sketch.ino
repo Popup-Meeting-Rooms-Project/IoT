@@ -14,7 +14,7 @@
  * 
  * const char* ssid = ".....";
  * const char* password = ".....";
- * const char* mqtt_server = ".....";
+ * const char* mqttServer = ".....";
  */
 #include "constants.h"
 const char* mqttTopicIn = "hh-iot-mqtt/inTopic";
