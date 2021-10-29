@@ -14,11 +14,12 @@
  * 
  * const char* ssid = ".....";
  * const char* password = ".....";
- * const char* mqtt_server = ".....";
+ * const char* mqttServer = ".....";
  */
 #include "constants.h"
 const char* mqttTopicIn = "hh-iot-mqtt/inTopic";
 const char* mqttTopicOut = "hh-iot-mqtt/outTopic";
+const double firmwareVersion = 1.0;
 
 // Instantiate a WiFiClient and pass it to the MQTT library
 WiFiClient espClient;
@@ -55,6 +56,8 @@ void IRAM_ATTR toggleMotionDetected() {
 
 void setup() {
   Serial.begin(115200);
+  Serial.print("Firmware version ");
+  Serial.println(firmwareVersion);
   start_wifi();
 
   // The second parameter here is the port number
@@ -156,6 +159,7 @@ void buildMessage(bool motionState) {
   DynamicJsonDocument doc(128);
   doc["sensor"] = deviceMac;
   doc["detected"] = motionState;
+  doc["firmwareVersion"] = firmwareVersion;
   serializeJson(doc, msg);
   Serial.println(msg);
 }
