@@ -152,10 +152,9 @@ void publishStatus() {
 // Builds the JSON message
 /*
  * {
- *  [
  *    "sensor": the MAC address,
- *    "detected": true or false
- *  ]
+ *    "detected": true or false,
+ *    "firmwareVersion": the version number
  * }
  */
 void buildMessage(bool motionState) {
