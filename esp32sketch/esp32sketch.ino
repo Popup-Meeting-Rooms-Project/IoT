@@ -14,9 +14,17 @@
  * 
  * const char* ssid = ".....";
  * const char* password = ".....";
- * const char* mqttServer = ".....";
  */
 #include "constants.h"
+
+/* Eventually, the MQTT server IP address, username and password will need to be
+ * hidden away in a .gitignored file 
+ */
+IPAddress mqttServer(128, 214, 253, 119); 
+const char* mqttUser = "hh-iot-client";
+const char* mqttPassword = "ESP32sketch";
+const int mqttPort = 8888;
+
 const char* mqttTopicIn = "hh-iot-mqtt/inTopic";
 const char* mqttTopicOut = "hh-iot-mqtt/outTopic";
 const double firmwareVersion = 1.0;
@@ -35,7 +43,6 @@ char msg[MSG_BUFFER_SIZE];
 
 // PIR sensor
 const int sensorPin = 15; // GPIO15
-volatile byte sensorState = LOW;
 volatile bool stateChanged = false;
 
 // Handles detected motion
@@ -45,12 +52,6 @@ volatile bool stateChanged = false;
  *  These include calls to Serial and the WiFi library.
  */
 void IRAM_ATTR toggleMotionDetected() {
-  if (sensorState == HIGH) {
-    sensorState = LOW;
-  }
-  else {
-    sensorState = HIGH;
-  }
   stateChanged = true;
 }
 
@@ -62,7 +63,7 @@ void setup() {
 
   // The second parameter here is the port number
   // Port 1883 is the default unencrypted MQTT port
-  client.setServer(mqttServer, 1883);
+  client.setServer(mqttServer, mqttPort);
 
   // Bind a callback function to the PubSubClient
   // This is called when a message is received
@@ -112,6 +113,8 @@ void messageReceived(char* topic, byte* payload, unsigned int length) {
   StaticJsonDocument<256> doc;
   deserializeJson(doc, payload, length);
   String command = doc["command"];
+  Serial.print("Command: ");
+  Serial.println(command);
   // If the deserialised JSON contains the key "command" with the value "status",
   // publish an MQTT message containing the device status
   if (command == "status") {
@@ -135,7 +138,6 @@ void loop() {
 // Publishes an MQTT message with the current status
 void publishStatus() {
   if (digitalRead(sensorPin) == HIGH) {
-  //if (sensorState == HIGH) {
     Serial.println("Motion detected");
     buildMessage(true);
   }
@@ -177,7 +179,7 @@ void reconnect() {
     String clientID = "ESP32-";
     clientID += String(random(0xffff), HEX);
 
-    if (client.connect(clientID.c_str())) {
+    if (client.connect(clientID.c_str(), mqttUser, mqttPassword)) {
       // Success
       Serial.print("Connected with device ID ");
       Serial.println(clientID);
