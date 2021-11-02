@@ -134,7 +134,8 @@ void loop() {
 
 // Publishes an MQTT message with the current status
 void publishStatus() {
-  if (sensorState == HIGH) {
+  if (digitalRead(sensorPin) == HIGH) {
+  //if (sensorState == HIGH) {
     Serial.println("Motion detected");
     buildMessage(true);
   }
