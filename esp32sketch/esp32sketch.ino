@@ -17,7 +17,8 @@
  */
 #include "constants.h"
 
-/* Eventually, the MQTT server IP address, username and password will need to be
+/* 
+ * Eventually, the MQTT server IP address, username and password will need to be
  * hidden away in a .gitignored file 
  */
 IPAddress mqttServer(128, 214, 253, 119); 
