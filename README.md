@@ -163,7 +163,8 @@ The JSON message has the following format:
 ```json
 {
   "sensor": "0C-DD-24-A7-88-0D",
-  "detected": true
+  "detected": true,
+  "firmwareVersion": 1.0
 }
 ```
 where ```"sensor"``` is a string containing the MAC address of the ESP32, and ```"detected"``` is a boolean indicating whether the PIR sensor detects motion.
