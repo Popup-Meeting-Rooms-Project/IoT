@@ -24,16 +24,10 @@
  */
 #include "constants.h"
 
-<<<<<<< Updated upstream
-const char* mqttTopicIn = "hh-iot-mqtt/inTopic";
-const char* mqttTopicOut = "hh-iot-mqtt/outTopic";
-const double firmwareVersion = 1.0;
-=======
 // Names of the MQTT topics
 const char* mqttTopicIn = "hh-iot-mqtt/inTopic"; // Inbound messages from other devices to the ESP32 devices
 const char* mqttTopicOut = "hh-iot-mqtt/outTopic"; // Outbound messages from the ESP32 devices
 const double firmwareVersion = 1.1;
->>>>>>> Stashed changes
 
 // Instantiate a WiFiClient and pass it to the MQTT library, start a web server
 WiFiClient espClient;
