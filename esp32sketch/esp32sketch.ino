@@ -17,15 +17,6 @@
  */
 #include "constants.h"
 
-/* 
- * Eventually, the MQTT server IP address, username and password will need to be
- * hidden away in a .gitignored file 
- */
-IPAddress mqttServer(128, 214, 253, 119); 
-const char* mqttUser = "hh-iot-client";
-const char* mqttPassword = "ESP32sketch";
-const int mqttPort = 8888;
-
 const char* mqttTopicIn = "hh-iot-mqtt/inTopic";
 const char* mqttTopicOut = "hh-iot-mqtt/outTopic";
 const double firmwareVersion = 1.0;
