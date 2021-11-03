@@ -8,22 +8,37 @@
 #include <WiFi.h>
 #include <PubSubClient.h> // MQTT library
 #include <ArduinoJson.h>
+#include <AsyncTCP.h>
+#include <ESPAsyncWebServer.h>
+#include <AsyncElegantOTA.h>
 
 /*
- * WiFi credentials and MQTT server address in a separate file
+ * WiFi and MQTT server credentials in a separate file
  * 
  * const char* ssid = ".....";
  * const char* password = ".....";
+ * IPAddress mqttServer(..., ..., ..., ...); 
+ * const char* mqttUser = ".....";
+ * const char* mqttPassword = ".....";
+ * const int mqttPort = ....;
  */
 #include "constants.h"
 
+<<<<<<< Updated upstream
 const char* mqttTopicIn = "hh-iot-mqtt/inTopic";
 const char* mqttTopicOut = "hh-iot-mqtt/outTopic";
 const double firmwareVersion = 1.0;
+=======
+// Names of the MQTT topics
+const char* mqttTopicIn = "hh-iot-mqtt/inTopic"; // Inbound messages from other devices to the ESP32 devices
+const char* mqttTopicOut = "hh-iot-mqtt/outTopic"; // Outbound messages from the ESP32 devices
+const double firmwareVersion = 1.1;
+>>>>>>> Stashed changes
 
-// Instantiate a WiFiClient and pass it to the MQTT library
+// Instantiate a WiFiClient and pass it to the MQTT library, start a web server
 WiFiClient espClient;
 PubSubClient client(espClient);
+AsyncWebServer server(80); // Start a web server listening on port 80
 
 // Device MAC address (serves as the device ID,
 // which the backend and frontend will map to a physical room)
@@ -53,20 +68,24 @@ void setup() {
   Serial.println(firmwareVersion);
   start_wifi();
 
-  // The second parameter here is the port number
-  // Port 1883 is the default unencrypted MQTT port
+  // Start web server to enable OTA firmware updates
+  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
+    request->send(200, "text/plain", "This is the default Elegant OTA web server. Go to the endpoint /update to upload a new firmware version");
+  });
+
+  AsyncElegantOTA.begin(&server);
+  server.begin();
+  Serial.println("HTTP server started");
+
+  // Pass the MQTT configuration variables to the PubSubClient MQTT object
   client.setServer(mqttServer, mqttPort);
 
   // Bind a callback function to the PubSubClient
   // This is called when a message is received
-  /*
-   * This is a PoC at the moment. We could use it to allow
-   * the front-end/back-end to poll IoT devices for their current status
-   */
   client.setCallback(messageReceived);
 
   // Attach the interrupt to handle the PIR sensor
-  pinMode(sensorPin, INPUT_PULLUP);
+  pinMode(sensorPin, INPUT);
   attachInterrupt(digitalPinToInterrupt(sensorPin), toggleMotionDetected, CHANGE);
 }
 
@@ -116,11 +135,13 @@ void messageReceived(char* topic, byte* payload, unsigned int length) {
 
 // Keeps the connection alive and checks for state changes
 void loop() {
+  // Handles the MQTT portion of the loop
   if (!client.connected()) {
     reconnect();
   }
   client.loop();
 
+  // Reacts to changes in the PIR sensor state
   if (stateChanged) {
     publishStatus();
     stateChanged = false;
