@@ -80,6 +80,26 @@ First follow the instructions under "Installation". When you have installed the 
   + The serial monitor will display the JSON message sent to the ```hh-iot-mqtt/outTopic``` topic
 7. Poll the connected devices following the steps under "Polling connected devices"
 
+## Over-the-air firmware update
+
+The sketch enables the firmware to be updated from a file on a remote server.
+The update is triggered by sending an MQTT message to the ```hh-iot-mqtt/inTopic``` topic in the following format:
+
+```json
+{
+    "command": "update",
+    "uri": firmwareUri
+}
+```
+
+where ```firmwareUri``` is the fully qualified URI of a compiled sketch, usually having the ```.bin``` suffix.
+For example: ```http://www.example.com/firware/lastest.bin```
+
+## Firmware update via local web server
+
+As an interim solution, the ESP32 also runs a local web server, which enables updates to be installed.
+Navigate to the endpoint ```/update``` at the ESP32's IP address and follow the instructions there.
+
 ## Polling connected devices
 
 The sketch makes the ESP32 subscribe to the ```hh-iot-mqtt/inTopic``` topic. To poll all the connected devices, publish the following message to ```hh-iot-mqtt/inTopic```:
