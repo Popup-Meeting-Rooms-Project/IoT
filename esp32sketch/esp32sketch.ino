@@ -13,6 +13,7 @@
 #include "firmware.h"
 #include "mqtt.h"
 #include "pir.h"
+#include "autoupdate.h"
 
 // PIR sensor
 extern const int sensorPin;
@@ -34,6 +35,7 @@ void setup() {
     request->send(200, "text/plain", "This is the default Elegant OTA web server. Go to the endpoint /update to upload a new firmware version");
   });
 
+  // Start ElegantOTA to allow firmware to be uploaded to this individual board
   AsyncElegantOTA.begin(&wifiConnected::server);
   wifiConnected::server.begin();
   Serial.println("HTTP server started");
@@ -81,4 +83,6 @@ void loop() {
     publishStatus();
     stateChanged = false;
   }
+
+  autoupdate::autoupdateCheck(autoupdate::interval);
 }

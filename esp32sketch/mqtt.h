@@ -10,10 +10,10 @@
 #include "pir.h"
 
 namespace wifiConnected {
-// Instantiate a WiFiClient and pass it to the MQTT library
-WiFiClient espClient;
-PubSubClient client(espClient);
-AsyncWebServer server(80); // Start a web server listening on port 80
+  // Instantiate a WiFiClient and pass it to the MQTT library
+  WiFiClient espClient;
+  PubSubClient client(espClient);
+  AsyncWebServer server(80); // Start a web server listening on port 80
 }
 
 extern const char mqttTopicIn[] = "hh-iot-mqtt/inTopic";
