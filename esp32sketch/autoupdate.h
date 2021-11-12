@@ -46,8 +46,8 @@ namespace autoupdate {
     unsigned long currentMillis = millis();
 
     // If enough time has elapsed, get the latest version of the firmware from the server
-    if (currentMillis - autoupdate::previousMillis >= interval) {
-      double serverFirmwareVersion = autoupdate::fetchServerFirmwareVersion();
+    if (currentMillis - previousMillis >= interval) {
+      double serverFirmwareVersion = fetchServerFirmwareVersion();
       if (serverFirmwareVersion > firmwareVersion) {
         // If there is a new version available, do the update
         updateFirmware(constants::firmwareUpdateUri);
