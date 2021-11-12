@@ -14,6 +14,7 @@
 #include "mqtt.h"
 #include "pir.h"
 #include "autoupdate.h"
+#include "tests.h"
 
 // PIR sensor
 extern const int sensorPin;
@@ -22,10 +23,15 @@ extern volatile bool stateChanged;
 // Calls the toggleMotionDetected function from the pir.h file
 void IRAM_ATTR toggleMotionDetected();
 
+void messageReceived(char* topic, byte* payload, unsigned int length);
+
 void setup() {
   Serial.begin(115200);
   Serial.print("Firmware version ");
   Serial.println(firmwareVersion);
+
+  // Prepare unit tests
+  aunit::TestRunner::include("*");
   
   // Calls the start_wifi function from the wifi.h file
   startWifi();
@@ -53,6 +59,27 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(sensorPin), toggleMotionDetected, CHANGE);
 }
 
+// Keeps the connection alive and checks for state changes
+void loop() {
+  // Unit tests
+  aunit::TestRunner::run();
+
+  // Reconnect MQTT if necessary
+  if (!wifiConnected::client.connected()) {
+    reconnect();
+  }
+  wifiConnected::client.loop();
+
+  // Publish MQTT message if sensor state changes
+  if (stateChanged) {
+    publishStatus();
+    stateChanged = false;
+  }
+
+  // Check if updated firmware is available
+  autoupdate::autoupdateCheck(autoupdate::interval);
+}
+
 // Displays an inbound message
 // This is a callback function bound to the PubSubClient in setup()
 void messageReceived(char* topic, byte* payload, unsigned int length) {
@@ -70,19 +97,4 @@ void messageReceived(char* topic, byte* payload, unsigned int length) {
   if (command == "update") {
     updateFirmware(doc["uri"]);
   }
-}
-
-// Keeps the connection alive and checks for state changes
-void loop() {
-  if (!wifiConnected::client.connected()) {
-    reconnect();
-  }
-  wifiConnected::client.loop();
-
-  if (stateChanged) {
-    publishStatus();
-    stateChanged = false;
-  }
-
-  autoupdate::autoupdateCheck(autoupdate::interval);
 }
