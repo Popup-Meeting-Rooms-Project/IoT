@@ -24,27 +24,65 @@ test(example) {
 
 test(Connectivity){
 
-  delay(10);
-
-  Serial.println();
-  Serial.print("Connecting to ");
-  Serial.println(ssid); 
-
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(ssid, password); 
-
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
-
-  Serial.println();
-  Serial.println("WiFi connected");
-  Serial.print("IP address: ");
-  Serial.println(WiFi.localIP());
 
   assertEqual(WiFi.status(), WL_CONNECTED);
 }
+
+test(FirmwarePoll){
+
+  
+  int totalLength; 
+  int currentLength = 0;
+  
+  Serial.println("Firmware update message received");
+  Serial.print("Connecting to ");
+  Serial.println(firmwareUri);
+  HTTPClient httpClient;
+  httpClient.begin(firmwareUri);
+  int resp = httpClient.GET();
+  Serial.print("Response: ");
+  Serial.println(resp);
+
+  // TODO: work out if this should be comparing resp == 200
+  if (resp > 0) {
+    totalLength = httpClient.getSize();
+    int len = totalLength;
+
+    // Start the updater
+    Update.begin(UPDATE_SIZE_UNKNOWN);
+    Serial.print("Firmware file size: ");
+    Serial.println(totalLength);
+
+    // Creates a 128-byte read buffer
+    uint8_t buff[128] = { 0 };
+
+    // Gets the TCP stream
+    WiFiClient * stream = httpClient.getStreamPtr();
+
+    // Read data from server
+    Serial.println("Downloading");
+    while (httpClient.connected() && (len > 0 || len == -1)) {
+      size_t size = stream->available();
+      if (size) {
+        // Read up to 128 bytes
+        int c = stream->readBytes(buff, ((size > sizeof(buff)) ? sizeof(buff) : size));
+
+        // Pass this to the update function
+
+
+        if (len > 0) {
+          len -= c;
+        }
+      }
+      delay(1);
+    }
+  }
+  else {
+    Serial.println("Cannot download firmware file");
+  }
+  httpClient.end();
+}
+
 
 test(thisThing) {
   assertStringCaseEqual("hello", "Hello");
