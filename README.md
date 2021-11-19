@@ -14,9 +14,11 @@
    - [2.6. Program structure](#esp32-program-structure)
    - [2.7. Over-the-air firmware update](#esp32-over-the-air-firmware-update)
 3. [MQTT Broker](#mqtt-broker)
-   - [3.1. Users](#mqtt-broker-users)
-   - [3.2. Topics](#mqtt-broker-topics)
-   - [3.3. Access Control List](#mqtt-broker-access-control-list)
+   - [3.1. Installation](#mqtt-broker-installation)
+   - [3.2. Configuration](#mqtt-broker-configuration)
+   - [3.3. Users](#mqtt-broker-users)
+   - [3.4. Topics](#mqtt-broker-topics)
+   - [3.5. Access Control List](#mqtt-broker-access-control-list)
 
 
 ## <a name="hardware"></a>1. Hardware
@@ -98,7 +100,7 @@ When you have completed the [Software installation](#esp32-software-installation
 5. The serial monitor will track the progress of the ESP32 over the following steps:
   - Connecting to the WiFi
   - Connecting to the MQTT broker
-6. The serial monitor will output messages when the status of motion detection changes _(The serial monitor will display the JSON message sent to the `hh-iot-mqtt/outTopic` topic. More on topics at [3.2. Topics](#mqtt-broker-topics))_
+6. The serial monitor will output messages when the status of motion detection changes _(The serial monitor will display the JSON message sent to the `hh-iot-mqtt/outTopic` topic. More on topics at [3.4. Topics](#mqtt-broker-topics))_
 7. Poll the connected devices following the steps under "Polling connected devices"
 
 ### <a name="esp32-polling-connected-devices"></a>2.5. Polling connected devices
@@ -110,7 +112,7 @@ The sketch makes the ESP32 subscribe to the `hh-iot-mqtt/inTopic` topic. To poll
   "command": "status"
 }
 ```
-_More on topics at [3.2. Topics](#mqtt-broker-topics)._
+_More on topics at [3.4. Topics](#mqtt-broker-topics)._
 
 Follow these steps to publish MQTT messages from the command line:
 
@@ -189,7 +191,7 @@ The JSON message has the following format:
   "firmwareVersion": 1.0
 }
 ```
-where ```"sensor"``` is a string containing the MAC address of the ESP32, and `"detected"` is a boolean indicating whether the PIR sensor detects motion.
+where `"sensor"` is a string containing the MAC address of the ESP32, and `"detected"` is a boolean indicating whether the PIR sensor detects motion.
 
 ```c
 void reconnect()
@@ -219,6 +221,125 @@ Navigate to the endpoint `/update` at the ESP32's IP address and follow the inst
 
 ## <a name="mqtt-broker"></a>3. MQTT Broker
 
-### <a name="mqtt-broker-users"></a>3.1. Users
-### <a name="mqtt-broker-topics"></a>3.2. Topics
-### <a name="mqtt-broker-access-control-list"></a>3.3. Access Control List
+### <a name="mqtt-broker-installation"></a>3.1. Installation
+
+The MQTT Broker has been installed on a Linux Ubuntu server.
+
+The installation is done via the following command: `sudo apt-get install mosquitto`
+
+_If you are on an earlier version of Ubuntu or want a more recent version of mosquitto, you can add the [mosquitto-dev PPA](https://launchpad.net/~mosquitto-dev/+archive/ubuntu/mosquitto-ppa) to your repositories list via the following commands:_
+_1. Add the mosquitto-ppa to your repositories: `sudo apt-add-repository ppa:mosquitto-dev/mosquitto-ppa`_
+_2. Update packages information from all configured sources: `sudo apt-get update`_
+
+After the installation, you should be able to access the newly created mosquitto folder at `/etc/mosquitto`.
+
+This directory is the base directory where the MQTT Broker stores all of its configuration files.
+
+You can also check that the MQTT Broker is running using the command: `sudo systemctl status mosquitto.service`
+
+If you want to start or stop the MQTT Broker service, you can do it using the following commands:
+
+- Start the MQTT Broker service - `sudo systemctl start mosquitto.service`
+- Stop the MQTT Broker service - `sudo systemctl stop mosquitto.service`
+
+### <a name="mqtt-broker-configuration"></a>3.2. Configuration
+
+The MQTT Broker main configuration file is named `mosquitto.conf`.
+
+It holds all the configuration settings you can make on the broker. The list of available options and their values is available [here](https://mosquitto.org/man/mosquitto-conf-5.html).
+Alternatively, you can also find the same information in the CLI by running `man mosquitto.conf`.
+
+The MQTT Broker comes by default with a pre-configured configuration:
+
+```markdown
+# Place your local configuration in /etc/mosquitto/conf.d/
+#
+# A full description of the configuration file is at
+# /usr/share/doc/mosquitto/examples/mosquitto.conf.example
+
+persistence true
+persistence_location /var/lib/mosquitto/
+
+log_dest file /var/log/mosquitto/mosquitto.log
+
+include_dir /etc/mosquitto/conf.d
+```
+We recommend leaving the default values for these options, as they only define the basic operation of the MQTT broker.
+
+The project specific configurations we added are as follows:
+
+```markdown
+# Require authentication to connect to the broker.
+allow_anonymous false
+# Define authorized users and their password.
+password_file /etc/mosquitto/mosquitto_pwd
+# Define authorized topics and write/read permissions for each user.
+acl_file /etc/mosquitto/mosquitto_acl
+
+# Define the port that the broker must be listening to.
+listener 8888
+# Set the accepted protocol by the defined listener.
+protocol mqtt
+```
+
+As you might have noticed, in this configuration the MQTT Broker listens on port 8888. This port must therefore be open on the server so that the clients can connect to the broker.
+
+### <a name="mqtt-broker-users"></a>3.3. Users
+
+The existing users are configured in the `mosquitto_pwd` file that is in the mosquitto base directory (`/etc/mosquitto`).
+
+The users are used to connect to the MQTT broker in a secure way. Each user has a password defined for him.
+
+It is also possible to associate users with topics and give them read or write rights to them. These associations are called "ACL" (Access Control List). More information on the ACL at [3.5. Access Control List](#mqtt-broker-access-control-list).
+
+For this project, two users have been created on the MQTT Broker:
+
+- hh-iot-client
+- hh-backend-client
+
+The `hh-iot-client` is used by all ESP32 devices and the `hh-backend-client` by the backend server.
+
+To have information on how to add / update / remove users and their password, check this simple [Authentication documentation](https://mosquitto.org/documentation/authentication-methods/) made by the Eclipse Foundation.
+
+### <a name="mqtt-broker-topics"></a>3.4. Topics
+
+In MQTT, any user can publish and subscribe to any topic they want, unless explicitly denied by an ACL file _(See  [3.5. Access Control List](#mqtt-broker-access-control-list))_.
+
+For this project, the topics used by both users are the following:
+
+- hh-iot-mqtt/inTopic
+- hh-iot-mqtt/outTopic
+
+The topics used can be changed easily and without any special configuration. You simply have to change each occurrence of the old topic name by the new topic name in the MQTT Broker files, in the IoT code and the Backend code. 
+
+After making changes to the MQTT Broker files, remember to restart the MQTT Broker service using the following commands: 
+
+1. Stop the MQTT Broker service - `sudo systemctl stop mosquitto.service`
+2. Start the MQTT Broker service - `sudo systemctl start mosquitto.service`
+
+### <a name="mqtt-broker-access-control-list"></a>3.5. Access Control List
+
+As previously stated in section [3.4. Topics](#mqtt-broker-topics), in MQTT, any user can publish and subscribe to any topic they want.
+
+To increase security and prevent users from being able to publish or receive messages on topics that are not intended for them, it is possible to adjust the read and write rights of each user on the topics. These constraints are made via an Access Control List (ACL) file.
+
+The ACL file defined on our MQTT Broker is named `mosquitto_acl` and is situated in the mosquitto base directory (`/etc/mosquitto`).
+
+The content of the ACL file is the following:
+
+```text
+user hh-iot-client
+topic write hh-iot-mqtt/outTopic
+topic read hh-iot-mqtt/inTopic
+
+user hh-backend-client
+topic write hh-iot-mqtt/inTopic
+topic read hh-iot-mqtt/outTopic
+```
+
+Although the content of the file is rather self-explanatory, here is what is defined:
+
+- The user `hh-iot-client` can only write to the `hh-iot-mqtt/outTopic` and only read from the `hh-iot-mqtt/inTopic`.
+- The user `hh-backend-client` can only write to the `hh-iot-mqtt/inTopic` and only read from the `hh-iot-mqtt/outTopic`.
+
+_As a reminder, the `hh-iot-client` is used by all ESP32 devices and the `hh-backend-client` by the backend server._
