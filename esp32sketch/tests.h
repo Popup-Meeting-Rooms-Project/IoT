@@ -30,6 +30,29 @@ test(Connectivity){
 
 test(FirmwarePoll){
 
+  bool pass = false;
+
+    delay(10);
+
+  Serial.println();
+  Serial.print("Connecting to ");
+  Serial.println(ssid); 
+
+
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(ssid, password); 
+
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+
+  // Connected
+  Serial.println();
+  Serial.println("WiFi connected");
+  Serial.print("IP address: ");
+  Serial.println(WiFi.localIP());
   
   int totalLength; 
   int currentLength = 0;
@@ -76,11 +99,13 @@ test(FirmwarePoll){
       }
       delay(1);
     }
+  pass = true;
   }
   else {
-    Serial.println("Cannot download firmware file");
+    pass = false;
   }
   httpClient.end();
+  assertTrue(pass);
 }
 
 
