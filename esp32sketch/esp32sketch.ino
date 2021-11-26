@@ -74,6 +74,14 @@ void loop() {
   if (stateChanged) {
     publishStatus();
     stateChanged = false;
+
+    /*
+     * Prevent new messages from being sent for five seconds
+     * This is to avoid "spamming" the MQTT server with a constant stream
+     * of "detected" / "undetected" messages
+     * The value of the delay may need to be fine-tuned
+     */
+    delay(5000);
   }
 
   // Check if updated firmware is available
