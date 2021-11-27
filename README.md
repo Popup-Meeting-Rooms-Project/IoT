@@ -68,6 +68,8 @@ The ESP32 sketches uses the following libraries:
 * [WiFi](https://www.arduino.cc/en/Reference/WiFi)  - _This is a built-in library. You should not need to install it._
 * [PubSubClient](https://pubsubclient.knolleary.net/) - MQTT Client
 * [ArduinoJson](https://arduinojson.org/) - JSON Parser
+* [AsyncElegantOTA](https://github.com/ayushsharma82/AsyncElegantOTA) - OTA Updates
+* [AUnit](https://github.com/bxparks/AUnit) - Unit Testing
 
 Follow these steps to install the libraries that are not built in:
 
