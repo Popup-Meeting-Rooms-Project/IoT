@@ -84,9 +84,14 @@ The `constants.h`file contains the network parameters (SSID and password) of the
 File content:
 
 ```c
-const char* ssid = ".....";
-const char* password = ".....";
-const char* mqttServer = ".....";
+namespace constants {
+  constexpr char ssid[] = "******";
+  constexpr char password[] = "******";
+  IPAddress mqttServer(***, ***, ***, ***); 
+  constexpr char mqttUser[] = "******";
+  constexpr char mqttPassword[] = "******";
+  constexpr int mqttPort = ******;
+}
 ```
 
 ### <a name="esp32-usage"></a>2.4. Usage
@@ -102,6 +107,8 @@ When you have completed the [Software installation](#esp32-software-installation
   - Connecting to the MQTT broker
 6. The serial monitor will output messages when the status of motion detection changes _(The serial monitor will display the JSON message sent to the `hh-iot-mqtt/outTopic` topic. More on topics at [3.4. Topics](#mqtt-broker-topics))_
 7. Poll the connected devices following the steps under "Polling connected devices"
+
+   - If there are issues uploading try changing upload speed to 115200.
 
 ### <a name="esp32-polling-connected-devices"></a>2.5. Polling connected devices
 
@@ -136,7 +143,6 @@ The program works as follows:
     - `deviceMac`: the ESP32's MAC address, which is sent as the device ID in outbound JSON status messages
     - `msg`: a char array holding messages
     - `sensorPin`: the GPIO pin connected to the PIR sensor
-    - `sensorState`: ```LOW``` if the sensor does not detect motion or ```HIGH``` if it does detect motion
     - `stateChanged`: a boolean indicated whether the program needs to send a message
 2. The program contains the following functions
 ```c
@@ -277,12 +283,12 @@ password_file /etc/mosquitto/mosquitto_pwd
 acl_file /etc/mosquitto/mosquitto_acl
 
 # Define the port that the broker must be listening to.
-listener 8888
+listener ****
 # Set the accepted protocol by the defined listener.
 protocol mqtt
 ```
 
-As you might have noticed, in this configuration the MQTT Broker listens on port 8888. This port must therefore be open on the server so that the clients can connect to the broker.
+As you might have noticed, in this configuration the MQTT Broker listens on port ****. This port must therefore be open on the server so that the clients can connect to the broker.
 
 ### <a name="mqtt-broker-users"></a>3.3. Users
 
@@ -321,7 +327,7 @@ After making changes to the MQTT Broker files, remember to restart the MQTT Brok
 
 As previously stated in section [3.4. Topics](#mqtt-broker-topics), in MQTT, any user can publish and subscribe to any topic they want.
 
-To increase security and prevent users from being able to publish or receive messages on topics that are not intended for them, it is possible to adjust the read and write rights of each user on the topics. These constraints are made via an Access Control List (ACL) file.
+To increase security and prevent users from being able to publish or receive messages on topics that are not intended for them, it is possible to adjust the read and write permissions of each user on the topics. These constraints are made via an Access Control List (ACL) file.
 
 The ACL file defined on our MQTT Broker is named `mosquitto_acl` and is situated in the mosquitto base directory (`/etc/mosquitto`).
 
