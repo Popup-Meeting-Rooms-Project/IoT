@@ -3,7 +3,7 @@
 
 #include <AUnit.h>
 
-test(example) {
+test(msg) {
 
   String Mac = WiFi.macAddress();
   
@@ -108,9 +108,5 @@ test(FirmwarePoll){
   assertTrue(pass);
 }
 
-
-test(thisThing) {
-  assertStringCaseEqual("hello", "Hello");
-}
 
 #endif  // TESTS_H
