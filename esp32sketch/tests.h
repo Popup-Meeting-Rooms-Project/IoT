@@ -2,6 +2,12 @@
 #define TESTS_H
 
 #include <AUnit.h>
+#include <WiFi.h>
+#include <ArduinoJson.h>
+#include <PubSubClient.h>
+#include <HTTPClient.h>
+#include "constants.h"
+#include <Update.h>
 
 test(msg) {
 
