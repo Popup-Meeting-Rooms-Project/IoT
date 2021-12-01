@@ -93,6 +93,8 @@ namespace constants {
   constexpr char mqttUser[] = "******";
   constexpr char mqttPassword[] = "******";
   constexpr int mqttPort = ******;
+  const char* firmwareVersionUri = "https://api.github.com/repos/Popup-Meeting-Rooms-Project/IoT-github-releases/releases/latest";
+  const char* releaseTagName = "v1.0.0";
 }
 ```
 
