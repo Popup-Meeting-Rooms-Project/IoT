@@ -8,6 +8,7 @@
 #include <HTTPClient.h>
 #include "constants.h"
 #include <Update.h>
+#include "pir.h"
 
 test(msg) {
 
@@ -42,11 +43,11 @@ test(FirmwarePoll){
 
   Serial.println();
   Serial.print("Connecting to ");
-  Serial.println(ssid); 
+  Serial.println(constants::ssid); 
 
 
   WiFi.mode(WIFI_STA);
-  WiFi.begin(ssid, password); 
+  WiFi.begin(constants::ssid, constants::password); 
 
 
   while (WiFi.status() != WL_CONNECTED) {
@@ -65,9 +66,9 @@ test(FirmwarePoll){
   
   Serial.println("Firmware update message received");
   Serial.print("Connecting to ");
-  Serial.println(firmwareUri);
+  Serial.println(constants::firmwareVersionUri);
   HTTPClient httpClient;
-  httpClient.begin(firmwareUri);
+  httpClient.begin(constants::firmwareVersionUri);
   int resp = httpClient.GET();
   Serial.print("Response: ");
   Serial.println(resp);
