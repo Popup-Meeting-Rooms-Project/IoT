@@ -211,23 +211,7 @@ This function connects to the MQTT server. At the moment, it connects using a ra
 
 ### <a name="esp32-over-the-air-firmware-update"></a>2.7. Over-the-air firmware update
 
-The sketch enables the firmware to be updated from a file on a remote server.
-The update is triggered by sending an MQTT message to the `hh-iot-mqtt/inTopic` topic in the following format:
-
-```json
-{
-    "command": "update",
-    "uri": firmwareUri
-}
-```
-
-where `firmwareUri` is the fully qualified URI of a compiled sketch, usually having the `.bin` suffix.
-For example: `http://www.example.com/firware/lastest.bin`
-
-#### Firmware update via local web server
-
-As an interim solution, the ESP32 also runs a local web server, which enables updates to be installed.
-Navigate to the endpoint `/update` at the ESP32's IP address and follow the instructions there.
+The sketch will automatically update when a newer Github release is found. The sketch compares the latest release tag in the Github repository with the stored release tag. See [constants.h](#esp32-constants.h). The sketch polls the Github server at the interval defined in `autoupdate::interval`.
 
 ## <a name="mqtt-broker"></a>3. MQTT Broker
 
