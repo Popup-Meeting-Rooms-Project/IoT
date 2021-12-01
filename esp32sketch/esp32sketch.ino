@@ -1,4 +1,4 @@
-/*
+  /*
  * Multidisciplinary software project
  * Sketch to control an ESP32(-S2)
  * MQTT sections derived from the PubSubClient example sketch
@@ -10,7 +10,7 @@
 
 #include "connect_wifi.h"
 #include "constants.h"
-#include "firmware.h"
+//#include "firmware.h"
 #include "mqtt.h"
 #include "pir.h"
 #include "autoupdate.h"
@@ -40,6 +40,8 @@ void setup() {
   wifiConnected::server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(200, "text/plain", "This is the default Elegant OTA web server. Go to the endpoint /update to upload a new firmware version");
   });
+
+  autoupdate::autoupdateCheck(0);
 
   // Start ElegantOTA to allow firmware to be uploaded to this individual board
   AsyncElegantOTA.begin(&wifiConnected::server);
@@ -103,6 +105,6 @@ void messageReceived(char* topic, byte* payload, unsigned int length) {
     publishStatus();
   }
   if (command == "update") {
-    updateFirmware(doc["uri"]);
+    autoupdate::updateFirmware(doc["uri"]);
   }
 }
