@@ -5,9 +5,6 @@
  * https://github.com/knolleary/pubsubclient/blob/master/examples/mqtt_esp8266/mqtt_esp8266.ino
  */
 
-#include <ESPAsyncWebServer.h>
-#include <AsyncElegantOTA.h>
-
 #include "connect_wifi.h"
 #include "constants.h"
 //#include "firmware.h"
@@ -36,20 +33,12 @@ void setup() {
   // Calls the start_wifi function from the wifi.h file
   startWifi();
 
-  // Start web server to enable OTA firmware updates
-  wifiConnected::server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
-    request->send(200, "text/plain", "This is the default Elegant OTA web server. Go to the endpoint /update to upload a new firmware version");
-  });
-
+  // Check for updates
+  // The argument here is the number of milliseconds after startup that a check should be performed
+  // Zero forces an immediate check
   autoupdate::autoupdateCheck(0);
 
-  // Start ElegantOTA to allow firmware to be uploaded to this individual board
-  AsyncElegantOTA.begin(&wifiConnected::server);
-  wifiConnected::server.begin();
-  Serial.println("HTTP server started");
-
-  // The second parameter here is the port number
-  // Port 1883 is the default unencrypted MQTT port
+  // Settings for the connection to the MQTT broker
   wifiConnected::client.setServer(constants::mqttServer, constants::mqttPort);
   
   // Bind a callback function to the PubSubClient
@@ -103,8 +92,5 @@ void messageReceived(char* topic, byte* payload, unsigned int length) {
   // publish an MQTT message containing the device status
   if (command == "status") {
     publishStatus();
-  }
-  if (command == "update") {
-    autoupdate::updateFirmware(doc["uri"]);
   }
 }
