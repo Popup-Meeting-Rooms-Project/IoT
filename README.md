@@ -211,7 +211,15 @@ This function connects to the MQTT server. At the moment, it connects using a ra
 
 ### <a name="esp32-over-the-air-firmware-update"></a>2.7. Over-the-air firmware update
 
-The sketch will automatically update when a newer Github release is found. The sketch compares the latest release tag in the Github repository with the stored release tag. See [constants.h](#esp32-constants.h). The sketch polls the Github server at the interval defined in `autoupdate::interval`.
+The sketch will automatically update when a newer Github release is found. The sketch compares the latest release tag in the Github repository with `constants::releaseTagName`. See [constants.h](#esp32-constants.h). The sketch polls the Github server at the interval defined in `autoupdate::interval`.
+
+Follow these instructions to push out a new update:
+1. In the Arduino IDE, define a new version number in `constants::releaseTagName`.
+  * IMPORTANT: The value that you assign to this variable must be the same as the release tag that you will use on Github in step 4 below. If the value of this variable is different from the release tag on Github, the device will get stuck in an endless loop of downloading and applying firmware updates.
+3. Compile the sketch into a binary file.
+4. Create a new release in the repository [IoT-github-releases](https://github.com/Popup-Meeting-Rooms-Project/IoT-github-releases) and upload the binary file as the Github release.
+5. Set the tag name of the release to the same value as you assigned to `constants::releaseTagName` in step 1.
+6. The devices will update automatically.
 
 ## <a name="mqtt-broker"></a>3. MQTT Broker
 
