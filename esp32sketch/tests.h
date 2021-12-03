@@ -118,12 +118,12 @@ test(FirmwarePoll){
 test(sensorState){
   String msg;
   bool pass = false;
-  if (digitalRead(sensorPin) == HIGH) {
+  if (digitalRead(pir::sensorPin) == HIGH) {
     Serial.println("Motion detected");
     msg = "Unit test message: Motion detected";
     pass = true;
   }
-  else if (digitalRead(sensorPin) == LOW) {
+  else if (digitalRead(pir::sensorPin) == LOW) {
     Serial.println("Motion no longer detected");
     msg = "Unit test message: Motion no longer detected";
     pass = true;

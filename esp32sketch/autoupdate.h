@@ -3,6 +3,7 @@
 
 #include <Update.h>
 #include <HTTPClient.h>
+#include <ArduinoJson.h>
 
 namespace autoupdate {
   const long interval = 3600000; // One hour in milliseconds
@@ -25,6 +26,7 @@ namespace autoupdate {
     if (currentMillis - previousMillis >= interval) {
 
       // HTTP get request to autoupdate::firmwareVersionUri
+      // The URI should be a Github endpoint that returns details about the latest release
       Serial.print("Polling ");
       Serial.println(constants::firmwareVersionUri);
       httpClient.begin(constants::firmwareVersionUri);
