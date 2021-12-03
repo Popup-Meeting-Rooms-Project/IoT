@@ -6,18 +6,27 @@
 #include <ArduinoJson.h>
 
 namespace autoupdate {
+  // Timing variables
   const long interval = 3600000; // One hour in milliseconds
   unsigned long previousMillis = 0;
+
+  // Firmware update variables
+  int totalLength; // Total firmware update size
+  int currentLength = 0; // Current size of written firmware
+  
   HTTPClient httpClient;
 
+  // Forward declarations
   void updateFirmware(const char* firmwareUri);
   void applyFirmware(uint8_t *data, size_t len);
   
-  /*
+  /**
    * At the given autoupdate::interval, checks whether a newer
    * version of the firmware exists on the backend server.
    * If so, calls the updateFirmware(uri) function to get and install
    * the new version
+   * 
+   * @param long interval The number of milliseconds between checks
    */
   void autoupdateCheck(long interval) {
     unsigned long currentMillis = millis();
@@ -64,11 +73,13 @@ namespace autoupdate {
     // Reset the timer
     autoupdate::previousMillis = currentMillis;
   }
-
-  int totalLength; // Total firmware update size
-  int currentLength = 0; // Current size of written firmware
   
-  // Writes the firmware update to the ESP32
+  /**
+   * Writes the firmware update to the ESP32
+   * 
+   * @param unit8_t The data to write
+   * @param size_t Number of bytes to write
+   */ 
   void applyFirmware(uint8_t *data, size_t len) {
     Update.write(data, len);
     currentLength += len;
@@ -93,8 +104,12 @@ namespace autoupdate {
     }
   }
   
-  // Updates the firmware with the file at the given firmwareUri
-  // Based on https://github.com/kurimawxx00/webota-esp32/blob/main/WebOTA.ino
+  /**
+   * Updates the firmware with the file at the given firmwareUri
+   * Based on https://github.com/kurimawxx00/webota-esp32/blob/main/WebOTA.ino
+   * 
+   * @param const char* The URI of the binary to download
+   */
   void updateFirmware(const char* firmwareUri) {
 
     Serial.println("Firmware update message received");

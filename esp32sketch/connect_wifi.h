@@ -6,18 +6,23 @@
 #include "constants.h"
 
 namespace connect_wifi {
-  // Establishes a WiFi connection
-  void startWifi() {
+  /**
+   * Establishes a WiFi connection
+   * 
+   * @param const char* Name of the SSID
+   * @param const char* Password for the SSID
+   */
+  void startWifi(const char* ssid, const char* password) {
     delay(10);
   
     // Log to serial console
     Serial.println();
     Serial.print("Connecting to ");
-    Serial.println(constants::ssid);
+    Serial.println(ssid);
   
     // Pass credentials to the WiFi library
     WiFi.mode(WIFI_STA);
-    WiFi.begin(constants::ssid, constants::password);
+    WiFi.begin(ssid, password);
   
     // Loop until connection is ready
     while (WiFi.status() != WL_CONNECTED) {

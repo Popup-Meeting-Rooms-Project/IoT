@@ -14,11 +14,11 @@ test(msg) {
 
   String Mac = WiFi.macAddress();
   
-  #define MSG_BUFFER_SIZE (128)
+  #define MSG_BUFFER_SIZE (256)
   char msg[MSG_BUFFER_SIZE];
 
   Serial.println("Building JSON message");
-  DynamicJsonDocument doc(128);
+  DynamicJsonDocument doc(256);
   doc["sensor"] = Mac;
   doc["detected"] = true;
   doc["firmwareVersion"] = 0.1;

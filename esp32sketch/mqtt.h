@@ -24,20 +24,23 @@ namespace mqtt {
   String deviceMac = WiFi.macAddress();
   
   // MQTT message
-  #define MSG_BUFFER_SIZE (128)
+  #define MSG_BUFFER_SIZE (256)
   char msg[MSG_BUFFER_SIZE];
   
-  // Builds the JSON message
-  /*
+  /**
+   * Builds the JSON message
+   * Example:
    * {
    *  "sensor": WiFi.macAddress();
    *  "detected": true|false,
    *  "firmwareVersion": constants::releaseTagName
    * }
+   * 
+   * @param bool Whether motion is detected
    */
   void buildMessage(bool motionState) {
     Serial.println("Building JSON message");
-    DynamicJsonDocument doc(128);
+    DynamicJsonDocument doc(256);
     doc["sensor"] = WiFi.macAddress();
     doc["detected"] = motionState;
     doc["firmwareVersion"] = constants::releaseTagName;
@@ -45,7 +48,11 @@ namespace mqtt {
     Serial.println(msg);
   }
   
-  // Publishes an MQTT message with the current status
+  /**
+   * Publishes a JSON message via MQTT to show the sensor state
+   * 
+   * @see buildMessage
+   */
   void publishStatus() {
     if (digitalRead(pir::sensorPin) == HIGH) {
       Serial.println("Motion detected");
@@ -58,7 +65,9 @@ namespace mqtt {
     client.publish(mqttTopicOut, msg);
   }
   
-  // Reconnects to the MQTT broker
+  /**
+   * Reconnects to the MQTT broker
+   */
   void reconnect() {
     // Loop until reconnected
     while (!client.connected()) {
@@ -96,10 +105,19 @@ namespace mqtt {
     }
   }
 
-  // Displays an inbound message
-  // This is a callback function bound to the PubSubClient in setup()
+  /**
+   * Handle incoming messages
+   * This is a callback function bound to the PubSubClient in setup()
+   * 
+   * @see setup
+   * @param char* Topic name
+   * @param byte* Message
+   * @param unsigned int Message length
+   */
   void messageReceived(char* topic, byte* payload, unsigned int length) {
     Serial.println("Received MQTT message");
+
+    // Attempt to deserialise the JSON message
     StaticJsonDocument<256> doc;
     deserializeJson(doc, payload, length);
     String command = doc["command"];

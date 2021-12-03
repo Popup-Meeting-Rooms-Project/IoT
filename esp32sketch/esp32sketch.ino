@@ -10,6 +10,9 @@
 #include "pir.h"
 #include "tests.h"
 
+/**
+ * Prepare the ESP32
+ */
 void setup() {
   Serial.begin(115200);
   Serial.print("Firmware version ");
@@ -19,7 +22,7 @@ void setup() {
   aunit::TestRunner::include("*");
   
   // Connects to the WiFi network
-  connect_wifi::startWifi();
+  connect_wifi::startWifi(constants::ssid, constants::password);
 
   // Check for updates
   // The argument here is the number of milliseconds after startup that a check should be performed
@@ -38,7 +41,11 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(pir::sensorPin), pir::toggleMotionDetected, CHANGE);
 }
 
-// Keeps the connection alive and checks for state changes
+/**
+ * Execute unit tests, keep MQTT client connected,
+ * poll the PIR sensor for state changes,
+ * check for OTA firmware updates
+ */
 void loop() {
   // Unit tests
   aunit::TestRunner::run();
