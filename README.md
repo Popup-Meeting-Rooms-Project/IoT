@@ -222,7 +222,7 @@ Follow these instructions to push out a new update:
 5. Set the tag name of the release to the same value as you assigned to `constants::releaseTagName` in step 1.
 6. The devices will update automatically.
 
-### <a name="#esp32-tests.h"></a>2.8. Testing
+### <a name="esp32-tests.h"></a>2.8. Testing
 
 Unit testing was created using the Aunit library. Documentation and install can be seen here: (https://github.com/bxparks/AUnit#Installation) 
 
