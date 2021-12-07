@@ -263,7 +263,7 @@ namespace co2 {
 ```
 doc["sensor"] = WiFi.macAddress();
 doc["detected"] = motionState;
-doc["co2"] = co2sensor::getState(); // New line
+doc["co2"] = co2::getState(); // New line
 doc["firmwareVersion"] = constants::releaseTagName;
 ```
 
