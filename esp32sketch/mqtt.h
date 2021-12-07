@@ -43,6 +43,13 @@ namespace mqtt {
     DynamicJsonDocument doc(256);
     doc["sensor"] = WiFi.macAddress();
     doc["detected"] = motionState;
+
+    /*
+     * To add new sensors to the board, add their readings to the JSON message here
+     */
+    // doc["co2"] = co2sensor::getState();
+    // doc["temperature"] = tempSensor::getState();
+    
     doc["firmwareVersion"] = constants::releaseTagName;
     serializeJson(doc, msg);
     Serial.println(msg);
