@@ -13,6 +13,7 @@
    - [2.5. Polling connected devices](#esp32-polling-connected-devices)
    - [2.6. Program structure](#esp32-program-structure)
    - [2.7. Over-the-air firmware update](#esp32-over-the-air-firmware-update)
+   - [2.8. Testing](#esp32-tests.h)
 3. [MQTT Broker](#mqtt-broker)
    - [3.1. Installation](#mqtt-broker-installation)
    - [3.2. Configuration](#mqtt-broker-configuration)
@@ -220,6 +221,18 @@ Follow these instructions to push out a new update:
 4. Create a new release in the repository [IoT-github-releases](https://github.com/Popup-Meeting-Rooms-Project/IoT-github-releases) and upload the binary file as the Github release.
 5. Set the tag name of the release to the same value as you assigned to `constants::releaseTagName` in step 1.
 6. The devices will update automatically.
+
+### <a name="#esp32-tests.h"></a>2.8. Testing
+
+Unit testing was created using the Aunit library. Documentation and install can be seen here: (https://github.com/bxparks/AUnit#Installation) 
+
+New tests can be added as follows
+
+(testName) {
+assertTrue(some boolean);
+}
+
+other assert statements also exist that are in the documentation linked above.
 
 ## <a name="mqtt-broker"></a>3. MQTT Broker
 
