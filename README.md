@@ -14,6 +14,7 @@
    - [2.6. Program structure](#esp32-program-structure)
    - [2.7. Over-the-air firmware update](#esp32-over-the-air-firmware-update)
    - [2.8. Testing](#esp32-tests.h)
+   - [2.9. Adding new sensors](#add-new-sensors)
 3. [MQTT Broker](#mqtt-broker)
    - [3.1. Installation](#mqtt-broker-installation)
    - [3.2. Configuration](#mqtt-broker-configuration)
@@ -235,6 +236,36 @@ assertTrue(some boolean);
 other assert statements also exist that can be seen here (https://github.com/bxparks/AUnit#BinaryAssertions)
 
 The pass cases and the tests overall in tests.h can be improved.
+
+### <a name="add-new-sensors"></a>2.9. Adding new sensors
+
+Follow these steps to add new sensors to the ESP32:
+1. Create a new header file containing the functions necessary to handle your sensor. For example:
+```c
+#ifndef CO2_H
+#define CO2_H
+
+namespace co2 {
+   const int sensorPin = 18; // GPIO 18
+   
+   float getState() {
+      return analogRead(sensorPin);
+   }
+}
+
+#endif // CO2_H
+```
+2. Include the new header file in the main sketch (`esp32sketch.ino`):
+```c
+#include "co2.h"
+```
+3. Add lines to the function `mqtt::buildMessage`:
+```
+doc["sensor"] = WiFi.macAddress();
+doc["detected"] = motionState;
+doc["co2"] = co2sensor::getState(); // New line
+doc["firmwareVersion"] = constants::releaseTagName;
+```
 
 ## <a name="mqtt-broker"></a>3. MQTT Broker
 
