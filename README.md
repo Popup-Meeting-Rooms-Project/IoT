@@ -232,7 +232,9 @@ New tests can be added as follows
 assertTrue(some boolean);
 }
 
-other assert statements also exist that are in the documentation linked above.
+other assert statements also exist that can be seen here (https://github.com/bxparks/AUnit#BinaryAssertions)
+
+The pass cases and the tests overall in tests.h can be improved.
 
 ## <a name="mqtt-broker"></a>3. MQTT Broker
 
